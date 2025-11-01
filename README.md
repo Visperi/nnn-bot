@@ -2,4 +2,8 @@
 
 Kertoo paljonko Not Nut Novemberia on jäljellä.
 
-Tee repositoryn pääkansioon tiedosto `token.txt` joka sisältää ainoastaan botin tokenin ja aja `main.py`.
+Asenna riippuvuudet, tee juurikansioon ainoastaan botin tokenin sisältävä tiedosto `token.txt` ja aja `main.py`.
+
+## License
+
+MIT License. See [LICENCE](LICENSE).
