@@ -46,7 +46,8 @@ async def time_left_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     left_substrings.append(f"{seconds} sekuntia")
 
     time_left_str = ", ".join(left_substrings)
-    await update.message.reply_text(f"NNN:ää jäljellä:\n\n{time_left_str}")
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+                                   text=f"NNN:ää jäljellä:\n\n{time_left_str}")
 
 
 def start_bot(bot_token: str):
@@ -57,5 +58,5 @@ def start_bot(bot_token: str):
 
 if __name__ == "__main__":
     with open("token.txt", "r") as token_file:
-        token = token_file.read()
+        token = token_file.read().strip()
     start_bot(token)
