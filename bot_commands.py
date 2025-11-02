@@ -1,7 +1,7 @@
-import logging
 from typing import Optional, Tuple
 from sqlite3 import IntegrityError
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -9,38 +9,13 @@ from telegram.ext import ContextTypes
 from database import DatabaseHandler
 
 
+TZ_HELSINKI = ZoneInfo("Europe/Helsinki")
+
+
 class BotCommands:
 
     def __init__(self):
         self.db = DatabaseHandler("app.db")
-
-    @staticmethod
-    def calculate_time_left() -> Optional[Tuple[int, int, int, int]]:
-        current_time = datetime.now()
-        nnn_end = datetime(current_time.year, 12, 1)
-
-        if nnn_end < current_time:
-            return None
-
-        diff = nnn_end - current_time
-        hours, remainder = divmod(diff.seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
-
-        return diff.days, hours, minutes, seconds
-
-    @staticmethod
-    def calculate_time_gone() -> Optional[Tuple[int, int, int, int]]:
-        current_time = datetime.now()
-        nnn_start = datetime(current_time.year, 11, 1)
-
-        if nnn_start > current_time:
-            return None
-
-        diff = current_time - nnn_start
-        hours, remainder = divmod(diff.seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
-
-        return diff.days, hours, minutes, seconds
 
     @staticmethod
     def format_time(days: int, hours: int, minutes: int, seconds: int) -> str:
@@ -55,8 +30,51 @@ class BotCommands:
 
         return ", ".join(substrings)
 
+    @staticmethod
+    def calculate_time_diff(minuend: datetime, subtrahend: datetime) -> Tuple[int, int, int, int]:
+        """
+        Calculate difference between two datetimes.
+
+        :param minuend: The minuend, i.e. where the second datetime is subtracted from.
+        :param subtrahend: Subtrahend, i.e. datetime that is subtracted from the first datetime.
+        :return: The difference as tuple of (days, hours, minutes, seconds).
+        """
+        diff = minuend - subtrahend
+        hours, remainder = divmod(diff.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        return diff.days, hours, minutes, seconds
+
+    def get_time_left(self) -> Optional[Tuple[int, int, int, int]]:
+        """
+        Get how much time there is left of NNN.
+
+        :return: Time left as tuple (days, hours, minutes, seconds), or None if NNN has not started.
+        """
+        current_time = datetime.now(TZ_HELSINKI)
+        nnn_end = datetime(current_time.year, 12, 1, tzinfo=TZ_HELSINKI)
+
+        if nnn_end < current_time:
+            return None
+
+        return self.calculate_time_diff(nnn_end, current_time)
+
+    def get_time_gone(self) -> Optional[Tuple[int, int, int, int]]:
+        """
+        Get how long the NNN has been on.
+
+        :return: Time left as tuple (days, hours, minutes, seconds), or None if the NNN has already ended.
+        """
+        current_time = datetime.now(TZ_HELSINKI)
+        nnn_start = datetime(current_time.year, 11, 1, tzinfo=TZ_HELSINKI)
+
+        if nnn_start > current_time:
+            return None
+
+        return self.calculate_time_diff(current_time, nnn_start)
+
     async def time_left_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        time_left = self.calculate_time_left()
+        time_left = self.get_time_left()
         if not time_left:
             await context.bot.send_message(chat_id=update.effective_chat.id, text="Ohi on!")
             return
@@ -67,7 +85,7 @@ class BotCommands:
 
     async def lost_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.effective_chat.id
-        time_gone = self.calculate_time_gone()
+        time_gone = self.get_time_gone()
         if not time_gone:
             await context.bot.send_message(chat_id=update.effective_chat.id, text="NNN ei ole käynnissä.")
             return
@@ -80,7 +98,7 @@ class BotCommands:
             username = update.effective_user.first_name
 
         try:
-            self.db.add(user.id, datetime.now())
+            self.db.add(user.id, datetime.now(TZ_HELSINKI))
         except IntegrityError:
             await context.bot.send_message(chat_id=chat_id, text=f"{username} on jo hävinnyt.")
             return
@@ -89,4 +107,5 @@ class BotCommands:
         await context.bot.send_message(chat_id=chat_id, text=msg)
 
     async def statistics_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        # TODO: Implement this
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Komento ei tee vielä mitään.")
