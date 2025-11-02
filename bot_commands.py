@@ -4,7 +4,7 @@ from sqlite3 import IntegrityError
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from telegram import Update
+from telegram import Update, Chat
 from telegram.ext import ContextTypes
 
 from database import DatabaseHandler
@@ -112,5 +112,11 @@ class BotCommands:
         await update.effective_chat.send_message(f"{username} kesti {time_gone_str} ja hävisi.")
 
     async def statistics_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        # TODO: Implement this
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Komento ei tee vielä mitään.")
+        if update.effective_chat.type == Chat.PRIVATE:
+            await update.effective_chat.send_message("Äläpä höpötä. Täällä olemme vain me kaksi.")
+            return
+
+        num_users = await update.effective_chat.get_member_count()
+        num_lost_users = len(self.db.get_losers())
+        msg = f"Hävinneitä: {num_lost_users}\nYhä mukana: {num_users - num_lost_users}"
+        await update.effective_chat.send_message(msg)
