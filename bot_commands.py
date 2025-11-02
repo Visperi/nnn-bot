@@ -118,7 +118,6 @@ class BotCommands:
         num_users = await update.effective_chat.get_member_count()
         lost_users = self.db.get_losers(update.effective_chat.id)
         num_lost_users = len(lost_users)
-        logger.info(lost_users)
 
         msg = f"Hävinneitä: {num_lost_users}\nYhä mukana: {num_users - num_lost_users}"
         await update.effective_chat.send_message(msg)
