@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, Tuple
 from sqlite3 import IntegrityError
 from datetime import datetime
@@ -9,6 +10,7 @@ from telegram.ext import ContextTypes
 from database import DatabaseHandler
 
 
+logger = logging.getLogger(__name__)
 TZ_HELSINKI = ZoneInfo("Europe/Helsinki")
 
 
@@ -102,6 +104,11 @@ class BotCommands:
         except IntegrityError:
             await context.bot.send_message(chat_id=chat_id, text=f"{username} on jo hävinnyt.")
             return
+
+        try:
+            await update.effective_chat.set_administrator_custom_title(user.id, "loser")
+        except Exception as e:
+            logger.error("Error at setting custom title:", exc_info=e)
 
         msg = f"{username} kesti {time_gone_str} ja hävisi."
         await context.bot.send_message(chat_id=chat_id, text=msg)
