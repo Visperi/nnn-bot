@@ -78,18 +78,17 @@ class BotCommands:
     async def time_left_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         time_left = self.get_time_left()
         if not time_left:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text="Ohi on!")
+            await update.effective_chat.send_message("Ohi on!")
             return
 
         time_left_str = self.format_time(*time_left)
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f"NNN:ää jäljellä:\n\n{time_left_str}")
+        await update.effective_chat.send_message(f"NNN:ää jäljellä:\n\n{time_left_str}")
 
     async def lost_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.effective_chat.id
         time_gone = self.get_time_gone()
         if not time_gone:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text="NNN ei ole käynnissä.")
+            await update.effective_chat.send_message("NNN ei ole käynnissä.")
             return
 
         time_gone_str = self.format_time(*time_gone)
@@ -102,7 +101,7 @@ class BotCommands:
         try:
             self.db.add(user.id, datetime.now(TZ_HELSINKI))
         except IntegrityError:
-            await context.bot.send_message(chat_id=chat_id, text=f"{username} on jo hävinnyt.")
+            await update.effective_chat.send_message(f"{username} on jo hävinnyt.")
             return
 
         try:
@@ -110,8 +109,7 @@ class BotCommands:
         except Exception as e:
             logger.error("Error at setting custom title:", exc_info=e)
 
-        msg = f"{username} kesti {time_gone_str} ja hävisi."
-        await context.bot.send_message(chat_id=chat_id, text=msg)
+        await update.effective_chat.send_message(f"{username} kesti {time_gone_str} ja hävisi.")
 
     async def statistics_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         # TODO: Implement this
