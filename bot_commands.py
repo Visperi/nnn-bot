@@ -147,3 +147,26 @@ class BotCommands:
             placements += f"{i+1}. {user.username.lstrip('@')}\t({self.format_time(*diff)})\n"
 
         await update.effective_chat.send_message(f"Näin vähän aikaa kanavan coomerit kesti:\n\n{placements}")
+
+
+    async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if update.effective_chat.type == Chat.PRIVATE:
+            await update.effective_chat.send_message("Komento toimii vain kanavilla.")
+            return
+
+        tg_user = update.effective_user
+        tg_chat = update.effective_chat
+        lost_user = self.db.get_lost_user(tg_user.id, tg_chat.id)
+        if not lost_user:
+            time_gone = self.get_time_gone()
+            diff_days = (time_gone[0] * 24 + time_gone[1]) / 24
+            await tg_chat.send_message(f"{tg_user.name} on kestänyt "
+                                       f"jo {round(diff_days, 1)} vuorokautta! Hullu tyyppi.")
+        else:
+            diff = self.calculate_time_diff(lost_user.time_lost, NNN_START)
+            formatted = self.format_time(*diff)
+            msg = f"{tg_user.name} kesti NNN:ää yhteensä: {formatted}."
+            await tg_chat.send_message(msg)
+
+            if tg_user.name != lost_user.username:
+                self.db.update_username(tg_user.id, tg_chat.id, tg_user.name)

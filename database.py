@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from utils import LostUser
 
@@ -71,3 +71,31 @@ class DatabaseHandler:
             ).fetchall()
 
         return [LostUser(attrs) for attrs in losers]
+
+    def get_lost_user(self, user_id: int, chat_id: int) -> Optional[LostUser]:
+        with self.connection:
+            user_data = self.cursor.execute(
+                """
+                SELECT * FROM users_lost WHERE user_id = ? and chat_id = ?
+                """, (user_id, chat_id)
+            ).fetchone()
+
+        if user_data is None:
+            return None
+        else:
+            return LostUser(user_data)
+
+    def update_username(self, user_id: int, chat_id: int, username: str):
+        if not username:
+            raise ValueError(f"Invalid vaue for username: '{username}'. Cannot update.")
+
+        with self.connection:
+            self.cursor.execute(
+                """
+                UPDATE users_lost
+                SET username = ?
+                WHERE user_id = ? AND chat_id = ?
+                """, (username, user_id, chat_id)
+            )
+
+        logger.debug(f"Updated username for user {user_id}.")
