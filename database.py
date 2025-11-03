@@ -23,7 +23,7 @@ class DatabaseHandler:
         """
         self.cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS losers (
+            CREATE TABLE IF NOT EXISTS users_lost (
                 user_id INTEGER NOT NULL,
                 chat_id INTEGER NOT NULL,
                 username TEXT NOT NULL,
@@ -47,7 +47,7 @@ class DatabaseHandler:
         with self.connection:
             self.cursor.execute(
                 """
-                INSERT INTO losers (user_id, chat_id, username, timestamp)
+                INSERT INTO users_lost (user_id, chat_id, username, timestamp)
                 VALUES 
                     (?, ?, ?, ?)
                 """, (user_id, chat_id, username, timestamp)
@@ -63,7 +63,7 @@ class DatabaseHandler:
         with self.connection:
             losers = self.cursor.execute(
                 """
-                SELECT * FROM losers WHERE chat_id = ?
+                SELECT * FROM users_lost WHERE chat_id = ?
                 """, (chat_id, )
             ).fetchall()
 
