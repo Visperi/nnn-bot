@@ -146,7 +146,7 @@ class BotCommands:
         msg = (f"Kanavan {update.effective_chat.effective_name} NNN-tilastot\n\n"
                f"Hävinneitä: {num_lost_users} ({lost_percentage} %)\n"
                f"Yhä mukana: {num_users - num_lost_users}\n\n"
-               f"Häviäjien keskimääräinen kesto: {formatted_avg_lost}")
+               f"Häviäjät selvisivät keskimäärin: {formatted_avg_lost}")
         await update.effective_chat.send_message(msg)
 
 
