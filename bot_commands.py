@@ -123,5 +123,7 @@ class BotCommands:
         lost_users = self.db.get_losers(update.effective_chat.id)
         num_lost_users = len(lost_users)
 
-        msg = f"Hävinneitä: {num_lost_users}\nYhä mukana: {num_users - num_lost_users}"
+        msg = (f"Kanavan {update.effective_chat.effective_name} NNN-tilastot\n\n"
+               f"Hävinneitä: {num_lost_users}\n"
+               f"Yhä mukana: {num_users - num_lost_users}")
         await update.effective_chat.send_message(msg)
