@@ -22,7 +22,7 @@ class DatabaseHandler:
 
     def create_table_if_not_exists(self):
         """
-        Create the database and losers table they do not exist.
+        Create the database and losers table if they do not exist.
         """
         self.cursor.execute(
             """
