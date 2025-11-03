@@ -107,13 +107,19 @@ class BotCommands:
             await update.effective_chat.send_message(f"{username} on jo hävinnyt.")
             return
 
+        message = f"{username} kesti {time_gone_str} ja hävisi."
         try:
             await update.effective_chat.promote_member(user.id)
             await update.effective_chat.set_administrator_custom_title(user.id, "loser")
         except Exception as e:
-            logger.error("Error at setting custom title:", exc_info=e)
+            if str(e) == "Can't remove chat owner":
+                message += "\n\nOlet kanavan omistaja eikä titteliäsi voi muokata."
+            elif str(e) == "Bots can't add new chat members":
+                message += "\n\nEsiinnyt anonyyminä eikä titteliäsi voi muokata."
+            else:
+                logger.error("Error at setting custom title:", exc_info=e)
 
-        await update.effective_chat.send_message(f"{username} kesti {time_gone_str} ja hävisi.")
+        await update.effective_chat.send_message(message)
 
     async def statistics_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_chat.type == Chat.PRIVATE:
