@@ -85,6 +85,10 @@ class BotCommands:
         await update.effective_chat.send_message(f"NNN:ää jäljellä:\n\n{time_left_str}")
 
     async def lost_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if update.effective_chat.type == Chat.PRIVATE:
+            await update.effective_chat.send_message("Käytä tätä komentoa jollain kanavalla.")
+            return
+
         time_gone = self.get_time_gone()
         if not time_gone:
             await update.effective_chat.send_message("NNN ei ole käynnissä.")
