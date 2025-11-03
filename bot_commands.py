@@ -138,9 +138,9 @@ class BotCommands:
             return
 
         lost_users.sort(key=lambda x: x.time_lost)
-        msg = ""
+        placements = ""
         for i, user in enumerate(lost_users):
             diff = self.calculate_time_diff(user.time_lost, NNN_START)
-            msg += f"{i+1}. {user.username} ({self.format_time(*diff)})\n"
+            placements += f"{i+1}. {user.username.lstrip('@')}\t({self.format_time(*diff)})\n"
 
-        await update.effective_chat.send_message(msg)
+        await update.effective_chat.send_message(f"Näin vähän aikaa kanavan coomerit kesti:\n\n{placements}")
