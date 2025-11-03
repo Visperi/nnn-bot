@@ -96,18 +96,14 @@ class BotCommands:
 
         time_gone_str = self.format_time(*time_gone)
         user = update.effective_user
-        if user.username:
-            username = f"@{user.username}"
-        else:
-            username = update.effective_user.first_name
 
         try:
-            self.db.add(user.id, update.effective_chat.id, username, datetime.now(TZ_HELSINKI))
+            self.db.add(user.id, update.effective_chat.id, user.name, datetime.now(TZ_HELSINKI))
         except IntegrityError:
-            await update.effective_chat.send_message(f"{username} on jo hävinnyt.")
+            await update.effective_chat.send_message(f"{user.name} on jo hävinnyt.")
             return
 
-        message = f"{username} kesti {time_gone_str} ja hävisi."
+        message = f"{user.name} kesti {time_gone_str} ja hävisi."
         try:
             await update.effective_chat.promote_member(user.id)
             await update.effective_chat.set_administrator_custom_title(user.id, "loser")
