@@ -2,16 +2,17 @@ import logging
 from typing import Optional, Tuple
 from sqlite3 import IntegrityError
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 from telegram import Update, Chat
 from telegram.ext import ContextTypes
 
 from database import DatabaseHandler
-
+from utils import TZ_HELSINKI
 
 logger = logging.getLogger(__name__)
-TZ_HELSINKI = ZoneInfo("Europe/Helsinki")
+current_year = datetime.now(TZ_HELSINKI).year
+NNN_START = datetime(current_year, 11, 1, tzinfo=TZ_HELSINKI)
+NNN_END= datetime(current_year, 12, 1, tzinfo=TZ_HELSINKI)
 
 
 class BotCommands:
@@ -54,12 +55,11 @@ class BotCommands:
         :return: Time left as tuple (days, hours, minutes, seconds), or None if NNN has not started.
         """
         current_time = datetime.now(TZ_HELSINKI)
-        nnn_end = datetime(current_time.year, 12, 1, tzinfo=TZ_HELSINKI)
 
-        if nnn_end < current_time:
+        if NNN_END < current_time:
             return None
 
-        return self.calculate_time_diff(nnn_end, current_time)
+        return self.calculate_time_diff(NNN_END, current_time)
 
     def get_time_gone(self) -> Optional[Tuple[int, int, int, int]]:
         """
@@ -68,12 +68,11 @@ class BotCommands:
         :return: Time left as tuple (days, hours, minutes, seconds), or None if the NNN has already ended.
         """
         current_time = datetime.now(TZ_HELSINKI)
-        nnn_start = datetime(current_time.year, 11, 1, tzinfo=TZ_HELSINKI)
 
-        if nnn_start > current_time:
+        if NNN_START > current_time:
             return None
 
-        return self.calculate_time_diff(current_time, nnn_start)
+        return self.calculate_time_diff(current_time, NNN_START)
 
     async def time_left_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         time_left = self.get_time_left()
@@ -129,4 +128,19 @@ class BotCommands:
         msg = (f"Kanavan {update.effective_chat.effective_name} NNN-tilastot\n\n"
                f"Hävinneitä: {num_lost_users}\n"
                f"Yhä mukana: {num_users - num_lost_users}")
+        await update.effective_chat.send_message(msg)
+
+
+    async def placements_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        lost_users = self.db.get_losers(update.effective_chat.id)
+        if not lost_users:
+            await update.effective_chat.send_message("Yksikään kanavan jäsenistä ei ole vielä hävinnyt.")
+            return
+
+        lost_users.sort(key=lambda x: x.time_lost)
+        msg = ""
+        for i, user in enumerate(lost_users):
+            diff = self.calculate_time_diff(user.time_lost, NNN_START)
+            msg += f"{i+1}. {user.username} ({self.format_time(*diff)})\n"
+
         await update.effective_chat.send_message(msg)

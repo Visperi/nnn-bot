@@ -20,6 +20,7 @@ def start_bot(bot_token: str):
     application.add_handler(CommandHandler("jaljella", commands.time_left_command))
     application.add_handler(CommandHandler("havisin", commands.lost_command))
     application.add_handler(CommandHandler("tilastot", commands.statistics_command))
+    application.add_handler(CommandHandler("sijoitukset", commands.placements_command))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 

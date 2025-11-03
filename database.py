@@ -1,6 +1,9 @@
 import sqlite3
 import logging
 from datetime import datetime
+from typing import List, Tuple
+
+from utils import LostUser
 
 
 logger = logging.getLogger(__name__)
@@ -53,12 +56,12 @@ class DatabaseHandler:
                 """, (user_id, chat_id, username, timestamp)
             )
 
-    def get_losers(self, chat_id: int):
+    def get_losers(self, chat_id: int) -> List[LostUser]:
         """
         Get chat users that have lost.
 
         :param chat_id: Telegram chat ID.
-        :return: List of users that have lost in the channel.
+        :return: Users that have lost in the channel as a list of LostUser objects.
         """
         with self.connection:
             losers = self.cursor.execute(
@@ -67,4 +70,4 @@ class DatabaseHandler:
                 """, (chat_id, )
             ).fetchall()
 
-        return losers
+        return [LostUser(attrs) for attrs in losers]
