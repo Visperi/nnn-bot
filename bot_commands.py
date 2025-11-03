@@ -105,7 +105,7 @@ class BotCommands:
         message = f"{user.name} kesti {time_gone_str} ja hävisi."
         try:
             await update.effective_chat.promote_member(user.id)
-            await update.effective_chat.set_administrator_custom_title(user.id, "loser")
+            await update.effective_chat.set_administrator_custom_title(user.id, "coomer")
         except Exception as e:
             if str(e) == "Can't remove chat owner":
                 message += "\n\nOlet kanavan omistaja eikä titteliäsi voi muokata."
