@@ -133,7 +133,7 @@ class BotCommands:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
 
-        num_users = await update.effective_chat.get_member_count()
+        num_users = await update.effective_chat.get_member_count() - 1  # Subtract the bot from calculations
         lost_users = self.db.get_losers(update.effective_chat.id)
         num_lost_users = len(lost_users)
         lost_percentage = round(num_lost_users / num_users * 100, 1)
