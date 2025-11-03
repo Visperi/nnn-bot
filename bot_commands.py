@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from sqlite3 import IntegrityError
 from datetime import datetime
 
@@ -74,6 +74,18 @@ class BotCommands:
 
         return self.calculate_time_diff(current_time, NNN_START)
 
+    def calculate_average_time(self, lose_times: List[datetime]) -> Optional[Tuple[int, int, int, int]]:
+        if len(lose_times) == 0:
+            return None
+
+        total_seconds = 0
+        for dt in lose_times:
+            total_seconds+= dt.timestamp()
+
+        avg = total_seconds / len(lose_times)
+        avg_dt = datetime.fromtimestamp(avg, TZ_HELSINKI)
+        return self.calculate_time_diff(avg_dt, NNN_START)
+
     async def time_left_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         time_left = self.get_time_left()
         if not time_left:
@@ -124,10 +136,17 @@ class BotCommands:
         num_users = await update.effective_chat.get_member_count()
         lost_users = self.db.get_losers(update.effective_chat.id)
         num_lost_users = len(lost_users)
+        lost_percentage = round(num_lost_users / num_users * 100, 1)
+        avg_lost = self.calculate_average_time([user.time_lost for user in lost_users])
+        if not avg_lost:
+            formatted_avg_lost = "Ei laskettavissa"
+        else:
+            formatted_avg_lost = self.format_time(*avg_lost)
 
         msg = (f"Kanavan {update.effective_chat.effective_name} NNN-tilastot\n\n"
-               f"Hävinneitä: {num_lost_users}\n"
-               f"Yhä mukana: {num_users - num_lost_users}")
+               f"Hävinneitä: {num_lost_users} ({lost_percentage} %)\n"
+               f"Yhä mukana: {num_users - num_lost_users}\n\n"
+               f"Häviäjien keskimääräinen kesto: {formatted_avg_lost}")
         await update.effective_chat.send_message(msg)
 
 
