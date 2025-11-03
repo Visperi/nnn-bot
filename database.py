@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 from datetime import datetime
-from typing import List, Tuple
+from typing import List
 
 from utils import LostUser
 
