@@ -23,18 +23,23 @@ class DatabaseHandler:
         """
         self.cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS losers (
-                user_id INTEGER PRIMARY KEY,
-                timestamp INTEGER NOT NULL
+            CREATE TABLE IF NOT EXISTS users_lost (
+                user_id INTEGER NOT NULL,
+                chat_id INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                timestamp INTEGER NOT NULL,
+                PRIMARY KEY (user_id, chat_id)
             );
             """)
 
-    def add(self, user_id: int, timestamp: datetime):
+    def add(self, user_id: int, chat_id: int, username: str, timestamp: datetime):
         """
         Add user NNN loser data to database.
 
         :param user_id: Telegram user ID.
-        :param timestamp: Timestamp when the user lost.
+        :param chat_id: Telegram chat ID.
+        :param username: Telegram user username.
+        :param timestamp: Datetime of when the user lost.
         :raises IntegrityError: If the user has already lost.
         """
         timestamp = int(timestamp.timestamp())  # Ignore microseconds
@@ -42,28 +47,24 @@ class DatabaseHandler:
         with self.connection:
             self.cursor.execute(
                 """
-                INSERT INTO losers (user_id, timestamp)
+                INSERT INTO users_lost (user_id, chat_id, username, timestamp)
                 VALUES 
-                    (?, ?)
-                """, (user_id, timestamp)
+                    (?, ?, ?, ?)
+                """, (user_id, chat_id, username, timestamp)
             )
 
-    def get_losers(self):
+    def get_losers(self, chat_id: int):
         """
         Get chat users that have lost.
 
-        :return: List of users that have lost.
+        :param chat_id: Telegram chat ID.
+        :return: List of users that have lost in the channel.
         """
         with self.connection:
             losers = self.cursor.execute(
                 """
-                SELECT user_id, timestamp FROM losers
-                """
+                SELECT * FROM users_lost WHERE chat_id = ?
+                """, (chat_id, )
             ).fetchall()
 
         return losers
-
-
-if __name__ == '__main__':
-    db = DatabaseHandler("app.db")
-    print(db.get_losers())

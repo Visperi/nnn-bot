@@ -85,7 +85,10 @@ class BotCommands:
         await update.effective_chat.send_message(f"NNN:ää jäljellä:\n\n{time_left_str}")
 
     async def lost_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        chat_id = update.effective_chat.id
+        if update.effective_chat.type == Chat.PRIVATE:
+            await update.effective_chat.send_message("Käytä tätä komentoa jollain kanavalla.")
+            return
+
         time_gone = self.get_time_gone()
         if not time_gone:
             await update.effective_chat.send_message("NNN ei ole käynnissä.")
@@ -99,7 +102,7 @@ class BotCommands:
             username = update.effective_user.first_name
 
         try:
-            self.db.add(user.id, datetime.now(TZ_HELSINKI))
+            self.db.add(user.id, update.effective_chat.id, username, datetime.now(TZ_HELSINKI))
         except IntegrityError:
             await update.effective_chat.send_message(f"{username} on jo hävinnyt.")
             return
@@ -118,6 +121,10 @@ class BotCommands:
             return
 
         num_users = await update.effective_chat.get_member_count()
-        num_lost_users = len(self.db.get_losers())
-        msg = f"Hävinneitä: {num_lost_users}\nYhä mukana: {num_users - num_lost_users}"
+        lost_users = self.db.get_losers(update.effective_chat.id)
+        num_lost_users = len(lost_users)
+
+        msg = (f"Kanavan {update.effective_chat.effective_name} NNN-tilastot\n\n"
+               f"Hävinneitä: {num_lost_users}\n"
+               f"Yhä mukana: {num_users - num_lost_users}")
         await update.effective_chat.send_message(msg)
