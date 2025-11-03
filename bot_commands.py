@@ -105,6 +105,7 @@ class BotCommands:
             return
 
         try:
+            await update.effective_chat.promote_member(user.id)
             await update.effective_chat.set_administrator_custom_title(user.id, "loser")
         except Exception as e:
             logger.error("Error at setting custom title:", exc_info=e)
