@@ -170,3 +170,21 @@ class BotCommands:
 
             if tg_user.name != lost_user.username:
                 self.db.update_username(tg_user.id, tg_chat.id, tg_user.name)
+
+    @staticmethod
+    async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        commands = [
+            "/jaljella - Kertoo kauanko NNN:ää on jäljellä.",
+            "/havisin - Ilmoita hävinneesi NNN:n tältä vuodelta.",
+            "/tilastot - Näyttää tilastoja kanavan NNN-osallistujista.",
+            "/sijoitukset - Näyttää listan kanavan hävinneistä käyttäjistä.",
+            "/status - Näyttää oman NNN-statuksesi.",
+            "/help - Lähettää tämän viestin yksityisviestillä."
+        ]
+
+        joined = "\n".join(commands)
+        help_message = f"Botin kaikki komennot:\n\n{joined}"
+        await update.effective_user.send_message(help_message)
+
+        if update.effective_chat.type != Chat.PRIVATE:
+            await update.effective_message.reply_text("Ohjeet lähetetty yksityisviestillä.")
