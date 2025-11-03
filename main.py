@@ -3,12 +3,9 @@ import logging
 from telegram import Update
 from telegram.ext import Application, CommandHandler
 
+import utils
 from bot_commands import BotCommands
 
-logging.basicConfig(
-    format="[{asctime}] [{levelname}] {name}: {message}", level=logging.INFO, style="{"
-)
-logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
@@ -28,4 +25,6 @@ def start_bot(bot_token: str):
 if __name__ == "__main__":
     with open("token.txt", "r") as token_file:
         token = token_file.read().strip()
+
+    utils.configure_logging()
     start_bot(token)

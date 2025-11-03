@@ -1,3 +1,4 @@
+import logging
 from typing import Tuple
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -25,3 +26,13 @@ class LostUser:
     @property
     def time_lost(self) -> datetime:
         return datetime.fromtimestamp(self._time_lost, TZ_HELSINKI)
+
+
+def configure_logging():
+    logging.basicConfig(
+        format="[{asctime}] [{levelname}] {name}: {message}",
+        level=logging.INFO,
+        style="{",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    logging.getLogger("httpx").setLevel(logging.WARNING)
