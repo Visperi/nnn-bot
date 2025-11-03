@@ -85,7 +85,7 @@ class BotCommands:
 
     async def lost_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_chat.type == Chat.PRIVATE:
-            await update.effective_chat.send_message("Käytä tätä komentoa jollain kanavalla.")
+            await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
 
         time_gone = self.get_time_gone()
@@ -118,7 +118,7 @@ class BotCommands:
 
     async def statistics_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_chat.type == Chat.PRIVATE:
-            await update.effective_chat.send_message("Äläpä höpötä. Täällä olemme vain me kaksi.")
+            await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
 
         num_users = await update.effective_chat.get_member_count()
@@ -133,6 +133,9 @@ class BotCommands:
 
     async def placements_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         lost_users = self.db.get_losers(update.effective_chat.id)
+        if update.effective_chat.type == Chat.PRIVATE:
+            await update.effective_chat.send_message("Komento toimii vain kanavilla.")
+            return
         if not lost_users:
             await update.effective_chat.send_message("Yksikään kanavan jäsenistä ei ole vielä hävinnyt.")
             return
