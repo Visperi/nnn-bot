@@ -1,4 +1,5 @@
 import logging
+import statistics
 from typing import Optional, Tuple, List
 from sqlite3 import IntegrityError
 from datetime import datetime
@@ -82,11 +83,7 @@ def calculate_average_time(lose_times: List[datetime]) -> Optional[Tuple[int, in
     if len(lose_times) == 0:
         return None
 
-    total_seconds = 0
-    for dt in lose_times:
-        total_seconds += dt.timestamp()
-
-    avg = total_seconds / len(lose_times)
+    avg = statistics.mean((dt.timestamp() for dt in lose_times))
     avg_dt = datetime.fromtimestamp(avg, TZ_HELSINKI)
     return calculate_time_diff(avg_dt, NNN_START)
 
