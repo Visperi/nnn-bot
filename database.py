@@ -24,16 +24,17 @@ class DatabaseHandler:
         """
         Create the database and lost users table if they do not exist.
         """
-        self.cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS users_lost (
-                user_id INTEGER NOT NULL,
-                chat_id INTEGER NOT NULL,
-                username TEXT NOT NULL,
-                timestamp INTEGER NOT NULL,
-                PRIMARY KEY (user_id, chat_id)
-            );
-            """)
+        with self.connection:
+            self.cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users_lost (
+                    user_id INTEGER NOT NULL,
+                    chat_id INTEGER NOT NULL,
+                    username TEXT NOT NULL,
+                    timestamp INTEGER NOT NULL,
+                    PRIMARY KEY (user_id, chat_id)
+                );
+                """)
 
     def add(self, user_id: int, chat_id: int, username: str, timestamp: datetime):
         """
