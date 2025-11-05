@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class DatabaseHandler:
     """
-    A database handler for NNN losers.
+    A database handler for users that lost NNN.
     """
 
     def __init__(self, db_path: str):
@@ -22,7 +22,7 @@ class DatabaseHandler:
 
     def create_table_if_not_exists(self):
         """
-        Create the database and losers table if they do not exist.
+        Create the database and lost users table if they do not exist.
         """
         self.cursor.execute(
             """
@@ -37,7 +37,7 @@ class DatabaseHandler:
 
     def add(self, user_id: int, chat_id: int, username: str, timestamp: datetime):
         """
-        Add user NNN loser data to database.
+        Add user to lost users table.
 
         :param user_id: Telegram user ID.
         :param chat_id: Telegram chat ID.
@@ -56,7 +56,7 @@ class DatabaseHandler:
                 """, (user_id, chat_id, username, timestamp)
             )
 
-    def get_losers(self, chat_id: int) -> List[LostUser]:
+    def get_lost_users(self, chat_id: int) -> List[LostUser]:
         """
         Get chat users that have lost.
 
@@ -64,13 +64,13 @@ class DatabaseHandler:
         :return: Users that have lost in the channel as a list of LostUser objects.
         """
         with self.connection:
-            losers = self.cursor.execute(
+            users = self.cursor.execute(
                 """
                 SELECT * FROM users_lost WHERE chat_id = ?
                 """, (chat_id, )
             ).fetchall()
 
-        return [LostUser(attrs) for attrs in losers]
+        return [LostUser(attrs) for attrs in users]
 
     def get_lost_user(self, user_id: int, chat_id: int) -> Optional[LostUser]:
         with self.connection:

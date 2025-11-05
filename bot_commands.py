@@ -141,7 +141,7 @@ class BotCommands:
             return
 
         num_users = await update.effective_chat.get_member_count() - 1  # Subtract the bot from calculations
-        lost_users = self.db.get_losers(update.effective_chat.id)
+        lost_users = self.db.get_lost_users(update.effective_chat.id)
         num_lost_users = len(lost_users)
         lost_percentage = round(num_lost_users / num_users * 100, 1)
         avg_lost = calculate_average_time([user.time_lost for user in lost_users])
@@ -158,7 +158,7 @@ class BotCommands:
 
 
     async def placements_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        lost_users = self.db.get_losers(update.effective_chat.id)
+        lost_users = self.db.get_lost_users(update.effective_chat.id)
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
