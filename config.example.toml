@@ -1,0 +1,5 @@
+bot_token = "TOKEN"
+
+[lost_users]
+promote_lost_users = true
+lost_user_title = "TITLE"

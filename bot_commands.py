@@ -90,8 +90,19 @@ def calculate_average_time(lose_times: List[datetime]) -> Optional[Tuple[int, in
 
 class BotCommands:
 
-    def __init__(self):
+    def __init__(self, promote_lost_users: bool, lost_user_title: Optional[str]):
+        if promote_lost_users and not lost_user_title:
+            raise ValueError("Lost user title must be a non-empty string")
+        if len(lost_user_title) > 16:
+            raise ValueError("Admin title cannot be longer than 16 characters")
+
+        self.promote_lost_users = promote_lost_users
+        self.lost_user_title = lost_user_title
         self.db = DatabaseHandler("app.db")
+
+    async def promote_lost_user(self, update: Update, user_id: int):
+        await update.effective_chat.promote_member(user_id, can_pin_messages=True)
+        await update.effective_chat.set_administrator_custom_title(user_id, self.lost_user_title)
 
     async def time_left_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         time_left = get_time_left()
@@ -122,16 +133,17 @@ class BotCommands:
             return
 
         message = f"{user.name} kesti {time_gone_str} ja hävisi."
-        try:
-            await update.effective_chat.promote_member(user.id, can_pin_messages=True)
-            await update.effective_chat.set_administrator_custom_title(user.id, "coomer")
-        except Exception as e:
-            if str(e) == "Can't remove chat owner":
-                message += "\n\nOlet kanavan omistaja eikä titteliäsi voi muokata."
-            elif str(e) == "Bots can't add new chat members":
-                message += "\n\nEsiinnyt anonyyminä eikä titteliäsi voi muokata."
-            else:
-                logger.error("Error at setting custom title:", exc_info=e)
+
+        if self.promote_lost_users:
+            try:
+                await self.promote_lost_user(update, user.id)
+            except Exception as e:
+                if str(e) == "Can't remove chat owner":
+                    message += "\n\nOlet kanavan omistaja eikä titteliäsi voi muokata."
+                elif str(e) == "Bots can't add new chat members":
+                    message += "\n\nEsiinnyt anonyyminä eikä titteliäsi voi muokata."
+                else:
+                    logger.error("Error at setting custom title:", exc_info=e)
 
         await update.effective_chat.send_message(message)
 

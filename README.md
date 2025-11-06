@@ -1,8 +1,9 @@
 # NNN-bot
 
-Kertoo paljonko Not Nut Novemberia on jäljellä.
+Kertoo paljonko Not Nut Novemberia on jäljellä ja muuta siihen liittyvää.
 
-Asenna riippuvuudet, tee juurikansioon ainoastaan botin tokenin sisältävä tiedosto `token.txt` ja aja `main.py`.
+Asenna riippuvuudet, tee juurikansioon tiedosto `config.toml` ja aja `main.py`. Mallikappale tiedostosta `config.toml` 
+löytyy tiedostosta `config.example.toml`.
 
 ## License
 
