@@ -123,7 +123,7 @@ class BotCommands:
 
         message = f"{user.name} kesti {time_gone_str} ja hävisi."
         try:
-            await update.effective_chat.promote_member(user.id)
+            await update.effective_chat.promote_member(user.id, can_pin_messages=True)
             await update.effective_chat.set_administrator_custom_title(user.id, "coomer")
         except Exception as e:
             if str(e) == "Can't remove chat owner":
