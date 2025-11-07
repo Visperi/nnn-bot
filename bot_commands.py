@@ -100,11 +100,13 @@ class BotCommands:
         self.lost_user_title = lost_user_title
         self.db = DatabaseHandler("app.db")
 
-    async def promote_lost_user(self, update: Update, user_id: int):
+    @staticmethod
+    async def promote_chat_user(update: Update, user_id: int, title: str):
         await update.effective_chat.promote_member(user_id, can_pin_messages=True)
-        await update.effective_chat.set_administrator_custom_title(user_id, self.lost_user_title)
+        await update.effective_chat.set_administrator_custom_title(user_id, title)
 
-    async def time_left_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    @staticmethod
+    async def time_left_command(update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         time_left = get_time_left()
         if not time_left:
             await update.effective_chat.send_message("Ohi on!")
@@ -113,7 +115,7 @@ class BotCommands:
         time_left_str = format_time(*time_left)
         await update.effective_chat.send_message(f"NNN:ää jäljellä:\n\n{time_left_str}")
 
-    async def lost_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def lost_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
@@ -136,7 +138,7 @@ class BotCommands:
 
         if self.promote_lost_users:
             try:
-                await self.promote_lost_user(update, user.id)
+                await self.promote_chat_user(update, user.id, self.lost_user_title)
             except Exception as e:
                 if str(e) == "Can't remove chat owner":
                     message += "\n\nOlet kanavan omistaja eikä titteliäsi voi muokata."
@@ -147,7 +149,7 @@ class BotCommands:
 
         await update.effective_chat.send_message(message)
 
-    async def statistics_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def statistics_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
@@ -169,7 +171,7 @@ class BotCommands:
         await update.effective_chat.send_message(msg)
 
 
-    async def placements_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def placements_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         lost_users = self.db.get_lost_users(update.effective_chat.id)
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
@@ -187,7 +189,7 @@ class BotCommands:
         await update.effective_chat.send_message(f"Näin vähän aikaa kanavan coomerit kesti:\n\n{placements}")
 
 
-    async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
@@ -210,7 +212,7 @@ class BotCommands:
                 self.db.update_username(tg_user.id, tg_chat.id, tg_user.name)
 
     @staticmethod
-    async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         commands = [
             "/jaljella - Kertoo kauanko NNN:ää on jäljellä.",
             "/havisin - Ilmoita hävinneesi NNN:n tältä vuodelta.",
