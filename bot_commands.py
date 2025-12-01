@@ -90,6 +90,14 @@ def calculate_average_time(lose_times: List[datetime]) -> Optional[Tuple[int, in
     return calculate_time_diff(avg_dt, NNN_START)
 
 
+def figure_to_buffer() -> io.BytesIO:
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    plt.clf()
+    buffer.seek(0)
+    return buffer
+
+
 class BotCommands:
 
     def __init__(self, promote_lost_users: bool, lost_user_title: Optional[str]):
@@ -223,7 +231,7 @@ class BotCommands:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
 
-        lost_users = self.db.get_lost_users(-1003202727500)
+        lost_users = self.db.get_lost_users(update.effective_chat.id)
         if not lost_users:
             await update.effective_chat.send_message("Yksikään kanavan käyttäjistä ei ole vielä hävinnyt.")
             return
@@ -251,11 +259,7 @@ class BotCommands:
             p = np.poly1d(z)
             plt.plot(dates_lost, p(x_coords), linestyle="--", color="red")
 
-        buffer = io.BytesIO()
-        plt.savefig(buffer, format="png")
-        plt.clf()
-        buffer.seek(0)
-        await update.effective_chat.send_photo(buffer)
+        await update.effective_chat.send_photo(figure_to_buffer())
 
     async def distribution_hours_command(self, update: Update, _):
         if update.effective_chat.type == Chat.PRIVATE:
@@ -282,11 +286,7 @@ class BotCommands:
         plt.ylabel("Hävinneiden määrä")
         plt.xticks(list(range(24)), [f"{hour:02d}" for hour in range(24)])
 
-        buffer = io.BytesIO()
-        plt.savefig(buffer, format="png")
-        plt.clf()
-        buffer.seek(0)
-        await update.effective_chat.send_photo(buffer)
+        await update.effective_chat.send_photo(figure_to_buffer())
 
     @staticmethod
     async def help_command(update: Update, _):
