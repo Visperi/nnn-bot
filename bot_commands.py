@@ -6,6 +6,7 @@ from sqlite3 import IntegrityError
 from datetime import datetime
 
 import matplotlib.pyplot as plt
+import numpy as np
 from telegram import Update, Chat
 from telegram.ext import ContextTypes
 
@@ -230,12 +231,22 @@ class BotCommands:
             data.setdefault(key, 0)
             data[key] += 1
 
-        plt.bar(list(data.keys()), list(data.values()))
+        dates_lost = list(data.keys())
+        num_lost = list(data.values())
+
+        plt.bar(dates_lost, num_lost)
         plt.title("Hävinneet päivämääriä kohden")
         plt.xlabel("Päivämäärä [dd.mm.]")
         plt.ylabel("Hävinneiden määrä")
         plt.xticks(rotation=90)
         plt.subplots_adjust(bottom=0.18)
+
+        # Plot trend line if enough lost users
+        if len(dates_lost) > 2:
+            x_coords = list(range(1, len(dates_lost) + 1))
+            z = np.polyfit(x_coords, num_lost, 2)
+            p = np.poly1d(z)
+            plt.plot(dates_lost, p(x_coords), linestyle="--", color="red")
 
         buffer = io.BytesIO()
         plt.savefig(buffer, format="png")
