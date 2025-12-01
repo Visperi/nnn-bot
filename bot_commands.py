@@ -225,6 +225,10 @@ class BotCommands:
             return
 
         lost_users = self.db.get_lost_users(update.effective_chat.id)
+        if not lost_users:
+            await update.effective_chat.send_message("Yksikään kanavan käyttäjistä ei ole vielä hävinnyt.")
+            return
+
         data = {}
         for user in lost_users:
             key = user.time_lost.strftime("%d.%m.")
@@ -235,7 +239,7 @@ class BotCommands:
         num_lost = list(data.values())
 
         plt.bar(dates_lost, num_lost)
-        plt.title("Hävinneet päivämääriä kohden")
+        plt.title("Hävinneet päivämäärien suhteen")
         plt.xlabel("Päivämäärä [dd.mm.]")
         plt.ylabel("Hävinneiden määrä")
         plt.xticks(rotation=90)
