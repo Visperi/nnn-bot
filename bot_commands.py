@@ -219,7 +219,7 @@ class BotCommands:
             if tg_user.name != lost_user.username:
                 self.db.update_username(tg_user.id, tg_chat.id, tg_user.name)
 
-    async def distribution_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+    async def distribution_days_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
@@ -257,6 +257,36 @@ class BotCommands:
         buffer.seek(0)
         await update.effective_chat.send_photo(buffer)
 
+    async def distribution_hours_command(self, update: Update, _):
+        if update.effective_chat.type == Chat.PRIVATE:
+            await update.effective_chat.send_message("Komento toimii vain kanavilla.")
+            return
+
+        lost_users = self.db.get_lost_users(update.effective_chat.id)
+        if not lost_users:
+            await update.effective_chat.send_message("Yksikään kanavan käyttäjistä ei ole vielä hävinnyt.")
+            return
+
+        data = {}
+        for user in lost_users:
+            key = user.time_lost.hour
+            data.setdefault(key, 0)
+            data[key] += 1
+
+        hours_lost = list(data.keys())
+        num_lost = list(data.values())
+
+        plt.bar(hours_lost, num_lost)
+        plt.title("Hävinneet kellonajan suhteen")
+        plt.xlabel("Kellonaika tunteina")
+        plt.ylabel("Hävinneiden määrä")
+        plt.xticks(list(range(24)), [f"{hour:02d}" for hour in range(24)])
+
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        await update.effective_chat.send_photo(buffer)
+
     @staticmethod
     async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         commands = [
@@ -264,7 +294,8 @@ class BotCommands:
             "/havisin - Ilmoita hävinneesi NNN:n tältä vuodelta.",
             "/tilastot - Näyttää tilastoja kanavan NNN-osallistujista.",
             "/sijoitukset - Näyttää listan kanavan hävinneistä käyttäjistä.",
-            "/jakauma - Piirtää kuvaajan häviäjien määristä päivämäärien suhteen."
+            "/jakauma - Piirtää kuvaajan häviäjien määristä päivämäärien suhteen.",
+            "/jakauma2 - Piirtää kuvaajan häviäjien määristä kellonajan suhteen."
             "/status - Näyttää oman NNN-statuksesi.",
             "/help - Lähettää tämän viestin yksityisviestillä."
         ]
