@@ -164,9 +164,14 @@ class BotCommands:
         else:
             formatted_avg_lost = format_time(*avg_lost)
 
+        if get_time_left() is None:
+            users_left_label = "Selvinneitä"
+        else:
+            users_left_label = "Yhä mukana"
+
         msg = (f"Kanavan {update.effective_chat.effective_name} NNN-tilastot\n\n"
                f"Hävinneitä: {num_lost_users} ({lost_percentage} %)\n"
-               f"Yhä mukana: {num_users - num_lost_users}\n\n"
+               f"{users_left_label}: {num_users - num_lost_users}\n\n"
                f"Häviäjät selvisivät keskimäärin: {formatted_avg_lost}")
         await update.effective_chat.send_message(msg)
 
