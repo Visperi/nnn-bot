@@ -21,6 +21,7 @@ def start_bot(bot_token: str, promote_lost_users: bool, lost_user_title: str = N
     application.add_handler(CommandHandler("sijoitukset", commands.placements_command))
     application.add_handler(CommandHandler("status", commands.status_command))
     application.add_handler(CommandHandler("help", commands.help_command))
+    application.add_handler(CommandHandler("jakauma", commands.distribution_command))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 

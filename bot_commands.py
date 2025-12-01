@@ -1,9 +1,11 @@
 import logging
 import statistics
+import io
 from typing import Optional, Tuple, List
 from sqlite3 import IntegrityError
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 from telegram import Update, Chat
 from telegram.ext import ContextTypes
 
@@ -216,6 +218,30 @@ class BotCommands:
             if tg_user.name != lost_user.username:
                 self.db.update_username(tg_user.id, tg_chat.id, tg_user.name)
 
+    async def distribution_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+        if update.effective_chat.type == Chat.PRIVATE:
+            await update.effective_chat.send_message("Komento toimii vain kanavilla.")
+            return
+
+        lost_users = self.db.get_lost_users(update.effective_chat.id)
+        data = {}
+        for user in lost_users:
+            key = user.time_lost.strftime("%d.%m.")
+            data.setdefault(key, 0)
+            data[key] += 1
+
+        plt.bar(list(data.keys()), list(data.values()))
+        plt.title("Hävinneet päivämääriä kohden")
+        plt.xlabel("Päivämäärä [dd.mm.]")
+        plt.ylabel("Hävinneiden määrä")
+        plt.xticks(rotation=90)
+        plt.subplots_adjust(bottom=0.18)
+
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        await update.effective_chat.send_photo(buffer)
+
     @staticmethod
     async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
         commands = [
@@ -223,6 +249,7 @@ class BotCommands:
             "/havisin - Ilmoita hävinneesi NNN:n tältä vuodelta.",
             "/tilastot - Näyttää tilastoja kanavan NNN-osallistujista.",
             "/sijoitukset - Näyttää listan kanavan hävinneistä käyttäjistä.",
+            "/jakauma - Piirtää kuvaajan häviäjien määristä päivämäärien suhteen."
             "/status - Näyttää oman NNN-statuksesi.",
             "/help - Lähettää tämän viestin yksityisviestillä."
         ]

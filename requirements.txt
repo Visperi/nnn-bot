@@ -1,1 +1,2 @@
 python-telegram-bot==22.5
+matplotlib==3.10.7
