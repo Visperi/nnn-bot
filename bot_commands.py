@@ -262,7 +262,7 @@ class BotCommands:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
 
-        lost_users = self.db.get_lost_users(-1003202727500)
+        lost_users = self.db.get_lost_users(update.effective_chat.id)
         if not lost_users:
             await update.effective_chat.send_message("Yksikään kanavan käyttäjistä ei ole vielä hävinnyt.")
             return
