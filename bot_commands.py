@@ -223,7 +223,7 @@ class BotCommands:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
 
-        lost_users = self.db.get_lost_users(update.effective_chat.id)
+        lost_users = self.db.get_lost_users(-1003202727500)
         if not lost_users:
             await update.effective_chat.send_message("Yksikään kanavan käyttäjistä ei ole vielä hävinnyt.")
             return
@@ -253,6 +253,7 @@ class BotCommands:
 
         buffer = io.BytesIO()
         plt.savefig(buffer, format="png")
+        plt.clf()
         buffer.seek(0)
         await update.effective_chat.send_photo(buffer)
 
@@ -261,7 +262,7 @@ class BotCommands:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
 
-        lost_users = self.db.get_lost_users(update.effective_chat.id)
+        lost_users = self.db.get_lost_users(-1003202727500)
         if not lost_users:
             await update.effective_chat.send_message("Yksikään kanavan käyttäjistä ei ole vielä hävinnyt.")
             return
@@ -283,6 +284,7 @@ class BotCommands:
 
         buffer = io.BytesIO()
         plt.savefig(buffer, format="png")
+        plt.clf()
         buffer.seek(0)
         await update.effective_chat.send_photo(buffer)
 
