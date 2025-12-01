@@ -8,7 +8,6 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 from telegram import Update, Chat
-from telegram.ext import ContextTypes
 
 from database import DatabaseHandler
 from utils import TZ_HELSINKI
@@ -109,7 +108,7 @@ class BotCommands:
         await update.effective_chat.set_administrator_custom_title(user_id, title)
 
     @staticmethod
-    async def time_left_command(update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+    async def time_left_command(update: Update, _):
         time_left = get_time_left()
         if not time_left:
             await update.effective_chat.send_message("Ohi on!")
@@ -118,7 +117,7 @@ class BotCommands:
         time_left_str = format_time(*time_left)
         await update.effective_chat.send_message(f"NNN:ää jäljellä:\n\n{time_left_str}")
 
-    async def lost_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+    async def lost_command(self, update: Update, _):
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
@@ -152,7 +151,7 @@ class BotCommands:
 
         await update.effective_chat.send_message(message)
 
-    async def statistics_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+    async def statistics_command(self, update: Update, _):
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
@@ -179,7 +178,7 @@ class BotCommands:
         await update.effective_chat.send_message(msg)
 
 
-    async def placements_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+    async def placements_command(self, update: Update, _):
         lost_users = self.db.get_lost_users(update.effective_chat.id)
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
@@ -197,7 +196,7 @@ class BotCommands:
         await update.effective_chat.send_message(f"Näin vähän aikaa kanavan coomerit kesti:\n\n{placements}")
 
 
-    async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+    async def status_command(self, update: Update, _):
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
@@ -219,7 +218,7 @@ class BotCommands:
             if tg_user.name != lost_user.username:
                 self.db.update_username(tg_user.id, tg_chat.id, tg_user.name)
 
-    async def distribution_days_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+    async def distribution_days_command(self, update: Update, _):
         if update.effective_chat.type == Chat.PRIVATE:
             await update.effective_chat.send_message("Komento toimii vain kanavilla.")
             return
@@ -288,7 +287,7 @@ class BotCommands:
         await update.effective_chat.send_photo(buffer)
 
     @staticmethod
-    async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):  # type: ignore
+    async def help_command(update: Update, _):
         commands = [
             "/jaljella - Kertoo kauanko NNN:ää on jäljellä.",
             "/havisin - Ilmoita hävinneesi NNN:n tältä vuodelta.",
